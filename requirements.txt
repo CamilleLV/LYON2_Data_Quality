@@ -1,0 +1,14 @@
+# Data Manipulation
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Database Connectivity
+sqlalchemy>=1.4.0
+mysql-connector-python>=8.0.0
+# Needed for Great Expectations V3 API
+pymysql
+
+# Data Quality
+great_expectations>=0.17.0
+# Note: Evidently is not needed here if running in Jupyter, 
+# but if you add it to the pipeline later, add it here.
