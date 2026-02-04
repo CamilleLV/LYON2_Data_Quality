@@ -1,38 +1,49 @@
 import pandas as pd
 from sqlalchemy import create_engine
 import os
+import time
 
-# Database Connection (Internal Docker Network)
-DB_URI = "mysql+mysqlconnector://admin:admin@mariadb:3306/sirene_dw"
-INPUT_FILE = "/opt/airflow/data/StockEtablissement_utf8.csv"
-CHUNK_SIZE = 50000
+# --- CONFIGURATION ---
+DB_URI = "postgresql+psycopg2://admin:admin@postgres_warehouse:5432/sirene_dw"
+INPUT_FILE = "/opt/airflow/data/StockEtablissement_utf8_100000.csv" # Vérifie le nom !
+CHUNK_SIZE = 10000  # On réduit à 10k pour soulager la RAM
 
 def ingest_data():
-    print("--- Starting Ingestion ---")
+    print(f"--- 🚀 Démarrage Ingestion du fichier : {INPUT_FILE} ---")
+    
+    if not os.path.exists(INPUT_FILE):
+        raise FileNotFoundError(f"❌ Fichier introuvable : {INPUT_FILE}")
+
     engine = create_engine(DB_URI)
     
-    # Define types for efficiency
-    dtype_map = {
-        'siret': str, 'siren': str, 'codePostalEtablissement': str,
-        'activitePrincipaleEtablissement': str
-    }
+    # On force tout en string pour éviter que Pandas ne scanne tout pour deviner les types
+    # Cela accélère le démarrage et économise la RAM
+    iter_csv = pd.read_csv(
+        INPUT_FILE, 
+        sep=',', 
+        dtype=str, 
+        chunksize=CHUNK_SIZE,
+        low_memory=True
+    )
 
-    try:
-        # Using iterator=True for chunking
-        with pd.read_csv(INPUT_FILE, dtype=dtype_map, chunksize=CHUNK_SIZE, low_memory=False) as reader:
-            for i, chunk in enumerate(reader):
-                if i == 0:
-                    # Replace table on first chunk
-                    chunk.to_sql('raw_stock_etablissement', engine, if_exists='replace', index=False)
-                else:
-                    # Append on subsequent chunks
-                    chunk.to_sql('raw_stock_etablissement', engine, if_exists='append', index=False)
-                print(f"Batch {i+1} loaded.")
-        print("--- Ingestion Complete ---")
+    total_rows = 0
+    start_time = time.time()
+
+    for i, chunk in enumerate(iter_csv):
+        mode = 'replace' if i == 0 else 'append'
         
-    except FileNotFoundError:
-        print(f"Error: File {INPUT_FILE} not found.")
-        exit(1)
+        # Insertion
+        chunk.to_sql('raw_stock_etablissement', engine, if_exists=mode, index=False)
+        
+        total_rows += len(chunk)
+        
+        # Un petit print tous les 10 chunks (100k lignes) pour ne pas spammer les logs
+        if i % 10 == 0:
+            elapsed = time.time() - start_time
+            speed = total_rows / elapsed
+            print(f"✅ Chunk {i} traité. Total lignes : {total_rows} ({int(speed)} lignes/sec)")
+
+    print(f"--- 🎉 Ingestion Terminée ! Total : {total_rows} lignes ---")
 
 if __name__ == "__main__":
     ingest_data()

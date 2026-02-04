@@ -1,7 +1,7 @@
 import great_expectations as gx
 
 # Connection String
-CONNECTION_STRING = "mysql+mysqlconnector://admin:admin@mariadb:3306/sirene_dw"
+CONNECTION_STRING = "postgresql+psycopg2://admin:admin@postgres_warehouse:5432/sirene_dw"
 
 def validate_data():
     context = gx.get_context()

@@ -1,0 +1,145 @@
+version: '3.8'
+
+x-common-env: &common-env
+  AIRFLOW__CORE__EXECUTOR: LocalExecutor
+  AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: mysql+mysqlconnector://airflow:airflow@mariadb:3306/airflow
+  AIRFLOW__CORE__SQL_ALCHEMY_CONN: mysql+mysqlconnector://airflow:airflow@mariadb:3306/airflow
+  AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+
+services:
+  # --- 1. Storage: Central Data Warehouse & Metadata Store ---
+  mariadb:
+    image: mariadb:10.6
+    container_name: mariadb_warehouse
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=sirene_dw
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=admin
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      # Init script to create databases for Airflow and Superset automatically
+      - ./init_db:/docker-entrypoint-initdb.d
+    networks:
+      - data_network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # --- 2. Exploration: Jupyter Lab ---
+  jupyter:
+    image: jupyter/datascience-notebook:latest
+    container_name: jupyter_lab
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./data:/home/jovyan/data
+    environment:
+      - JUPYTER_TOKEN=admin
+    networks:
+      - data_network
+
+  # --- 3. Orchestration: Apache Airflow ---
+  airflow-webserver:
+    build: .  
+    image: custom-sirene-airflow:1.0
+    container_name: airflow_webserver
+    command: webserver
+    ports:
+      - "8090:8080"
+    env_file: .env
+    environment:
+      <<: *common-env
+      _AIRFLOW_DB_UPGRADE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: admin
+      _AIRFLOW_WWW_USER_PASSWORD: admin
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/scripts
+      - ./data:/opt/airflow/data
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - data_network
+
+  airflow-scheduler:
+    build: .  
+    image: custom-sirene-airflow:1.0
+    container_name: airflow_scheduler
+    command: scheduler
+    environment:
+      <<: *common-env
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/scripts
+      - ./data:/opt/airflow/data
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - data_network
+
+  # --- 4. Visualization: Apache Superset ---
+  superset:
+    build:
+      context: .
+      dockerfile: Dockerfile.superset
+    container_name: superset
+    ports:
+      - "8088:8088"
+    environment:
+      - SUPERSET_SECRET_KEY=AreYou
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - data_network
+
+  # --- 5. Governance: OpenMetadata (Simplified) ---
+  # Note: Full OM requires ElasticSearch + MySQL. 
+  # This is the simplified server container; usually requires a separate docker-compose for full dependencies.
+  openmetadata:
+    image: openmetadata/server:1.2.0
+    container_name: openmetadata
+    ports:
+      - "8585:8585"
+    environment:
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_USER=openmetadata_user
+      - DB_USER_PASSWORD=openmetadata_password
+      - DB_DBNAME=openmetadata_db
+      # Using internal memory search for demo purposes to avoid spinning up ElasticSearch (save RAM)
+      # In Prod, set SEARCH_TYPE=elasticsearch and add an ES container.
+      - SEARCH_TYPE=elasticsearch 
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+    depends_on:
+      - mariadb
+      - elasticsearch
+    networks:
+      - data_network
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    networks:
+      - data_network
+
+networks:
+  data_network:
+
+volumes:
+  mariadb_data:

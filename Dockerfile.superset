@@ -1,0 +1,9 @@
+FROM apache/superset:latest
+
+# On reste en utilisateur 'superset' pour installer DANS son environnement
+USER root
+
+# Installation forcée du pilote binaire
+RUN pip install --no-cache-dir psycopg2-binary
+
+USER superset

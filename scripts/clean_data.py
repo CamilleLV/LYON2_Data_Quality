@@ -1,47 +1,78 @@
-import pandas as pd
-import numpy as np
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
-DB_URI = "mysql+mysqlconnector://admin:admin@mariadb:3306/sirene_dw"
+DB_URI = "postgresql+psycopg2://admin:admin@postgres_warehouse:5432/sirene_dw"
 
 def clean_data():
-    print("--- Starting Cleaning ---")
+    print("--- 🧹 Démarrage du Nettoyage (Mode SQL In-Database) ---")
     engine = create_engine(DB_URI)
-    
-    # Read Raw Data
-    df = pd.read_sql("SELECT * FROM raw_stock_etablissement", engine)
-    print(f"Loaded {len(df)} raw rows.")
 
-    # 1. Completeness: Drop rows without SIRET, fill PostCode
-    df.dropna(subset=['siret'], inplace=True)
-    df['codePostalEtablissement'] = df['codePostalEtablissement'].fillna('00000')
+    # On utilise une connexion brute pour exécuter du SQL complexe
+    with engine.connect() as conn:
+        
+        # 0. Création de la table propre (vide pour l'instant)
+        print("1. Préparation de la table cleaned...")
+        conn.execute(text("DROP TABLE IF EXISTS cleaned_stock_etablissement"))
+        
+        # C'est ici que la magie opère : CREATE TABLE AS SELECT ...
+        # On traduit tes règles Pandas en SQL
+        query = text("""
+            CREATE TABLE cleaned_stock_etablissement AS
+            SELECT 
+                siret,
+                -- Règle 1 (Complétude) : Remplacer Code Postal vide par 00000
+                COALESCE("codePostalEtablissement", '00000') as "codePostalEtablissement",
+                "activitePrincipaleEtablissement",
+                "dateCreationEtablissement",
+                "dateDernierTraitementEtablissement",
+                "etatAdministratifEtablissement"
+            FROM raw_stock_etablissement
+            WHERE 
+                -- Règle 1 (Complétude) : SIRET doit exister
+                siret IS NOT NULL
+                
+                -- Règle 4 (Exactitude) : Regex SIRET (14 chiffres)
+                AND siret ~ '^\d{14}$'
+                
+                -- Règle 4 (Exactitude) : Regex Code Postal (5 chiffres)
+                AND "codePostalEtablissement" ~ '^\d{5}$'
+                
+                -- Règle 5 (Validité) : Format APE (ex: 62.01Z)
+                AND "activitePrincipaleEtablissement" ~ '^\d{2}\.\d{1,2}[A-Z]?$'
+                
+                -- Règle 3 (Actualité) : Actif OU (Fermé après 2000)
+                AND (
+                    "etatAdministratifEtablissement" = 'A'
+                    OR (
+                        "etatAdministratifEtablissement" = 'F' 
+                        AND "dateDernierTraitementEtablissement" >= '2000-01-01'
+                    )
+                )
+                
+                -- Règle 6 (Cohérence) : Création <= Dernier Traitement
+                AND (
+                    "dateCreationEtablissement" <= "dateDernierTraitementEtablissement"
+                    OR "dateDernierTraitementEtablissement" IS NULL
+                );
+        """)
+        conn.execute(query)
+        
+        # Règle 2 (Unicité) : Postgres ne gère pas le "drop_duplicates" facilement à la création
+        # On va donc garder une seule ligne par SIRET (la plus récente si doublon)
+        print("2. Dédoublonnage final (Unicité)...")
+        
+        # On crée une table temporaire pour supprimer les doublons
+        dedup_query = text("""
+            DELETE FROM cleaned_stock_etablissement a USING (
+                SELECT min(ctid) as ctid, siret
+                FROM cleaned_stock_etablissement 
+                GROUP BY siret HAVING COUNT(*) > 1
+            ) b
+            WHERE a.siret = b.siret 
+            AND a.ctid <> b.ctid
+        """)
+        conn.execute(dedup_query)
 
-    # 2. Uniqueness: Dedup on SIRET
-    df.drop_duplicates(subset=['siret'], keep='last', inplace=True)
-
-    # 3. Timeliness: Remove closed before 2000
-    df['dateDernierTraitementEtablissement'] = pd.to_datetime(df['dateDernierTraitementEtablissement'], errors='coerce')
-    mask_active = df['etatAdministratifEtablissement'] == 'A'
-    mask_recent = (df['etatAdministratifEtablissement'] == 'F') & (df['dateDernierTraitementEtablissement'].dt.year >= 2000)
-    df = df[mask_active | mask_recent]
-
-    # 4. Accuracy: Regex for SIRET (14) and PostCode (5)
-    df = df[df['siret'].str.match(r'^\d{14}$', na=False)]
-    df = df[df['codePostalEtablissement'].str.match(r'^\d{5}$', na=False)]
-
-    # 5. Validity: APE Codes (XX.X or XX.XX)
-    # Simplified regex for demonstration
-    df = df[df['activitePrincipaleEtablissement'].str.match(r'^\d{2}\.\d{1,2}[A-Z]?$', na=False)]
-
-    # 6. Consistency: Creation < Last Treatment
-    df['dateCreationEtablissement'] = pd.to_datetime(df['dateCreationEtablissement'], errors='coerce')
-    mask_consistent = df['dateCreationEtablissement'] <= df['dateDernierTraitementEtablissement']
-    df = df[mask_consistent | df['dateDernierTraitementEtablissement'].isna()]
-
-    # Write Cleaned Data
-    print(f"Writing {len(df)} cleaned rows to DB...")
-    df.to_sql('cleaned_stock_etablissement', engine, if_exists='replace', index=False)
-    print("--- Cleaning Complete ---")
+    print("--- ✨ Nettoyage Terminé ! ---")
 
 if __name__ == "__main__":
     clean_data()
