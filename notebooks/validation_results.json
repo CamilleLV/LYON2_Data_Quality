@@ -1,0 +1,299 @@
+{
+    "success": true,
+    "results": [
+        {
+            "success": true,
+            "expectation_config": {
+                "expectation_type": "expect_column_values_to_not_be_null",
+                "kwargs": {
+                    "column": "siret",
+                    "result_format": "BASIC"
+                },
+                "meta": {}
+            },
+            "result": {
+                "element_count": 78888,
+                "unexpected_count": 0,
+                "unexpected_percent": 0.0,
+                "unexpected_percent_total": 0.0,
+                "partial_unexpected_list": []
+            },
+            "meta": {},
+            "exception_info": {
+                "raised_exception": false,
+                "exception_message": null,
+                "exception_traceback": null
+            }
+        },
+        {
+            "success": true,
+            "expectation_config": {
+                "expectation_type": "expect_column_values_to_match_regex",
+                "kwargs": {
+                    "column": "siret",
+                    "regex": "^\\d{14}$",
+                    "result_format": "BASIC"
+                },
+                "meta": {}
+            },
+            "result": {
+                "element_count": 78888,
+                "missing_count": 0,
+                "missing_percent": 0.0,
+                "unexpected_count": 0,
+                "unexpected_percent": 0.0,
+                "unexpected_percent_total": 0.0,
+                "unexpected_percent_nonmissing": 0.0,
+                "partial_unexpected_list": []
+            },
+            "meta": {},
+            "exception_info": {
+                "raised_exception": false,
+                "exception_message": null,
+                "exception_traceback": null
+            }
+        },
+        {
+            "success": true,
+            "expectation_config": {
+                "expectation_type": "expect_column_values_to_be_unique",
+                "kwargs": {
+                    "column": "siret",
+                    "result_format": "BASIC"
+                },
+                "meta": {}
+            },
+            "result": {
+                "element_count": 78888,
+                "missing_count": 0,
+                "missing_percent": 0.0,
+                "unexpected_count": 0,
+                "unexpected_percent": 0.0,
+                "unexpected_percent_total": 0.0,
+                "unexpected_percent_nonmissing": 0.0,
+                "partial_unexpected_list": []
+            },
+            "meta": {},
+            "exception_info": {
+                "raised_exception": false,
+                "exception_message": null,
+                "exception_traceback": null
+            }
+        },
+        {
+            "success": true,
+            "expectation_config": {
+                "expectation_type": "expect_column_values_to_not_be_null",
+                "kwargs": {
+                    "column": "libelleCommuneEtablissement",
+                    "mostly": 0.95,
+                    "result_format": "BASIC"
+                },
+                "meta": {}
+            },
+            "result": {
+                "element_count": 78888,
+                "unexpected_count": 2,
+                "unexpected_percent": 0.0025352398336882668,
+                "unexpected_percent_total": 0.0025352398336882668,
+                "partial_unexpected_list": []
+            },
+            "meta": {},
+            "exception_info": {
+                "raised_exception": false,
+                "exception_message": null,
+                "exception_traceback": null
+            }
+        },
+        {
+            "success": true,
+            "expectation_config": {
+                "expectation_type": "expect_column_values_to_match_regex",
+                "kwargs": {
+                    "column": "codePostalEtablissement",
+                    "regex": "^\\d{5}$",
+                    "result_format": "BASIC"
+                },
+                "meta": {}
+            },
+            "result": {
+                "element_count": 78888,
+                "missing_count": 0,
+                "missing_percent": 0.0,
+                "unexpected_count": 0,
+                "unexpected_percent": 0.0,
+                "unexpected_percent_total": 0.0,
+                "unexpected_percent_nonmissing": 0.0,
+                "partial_unexpected_list": []
+            },
+            "meta": {},
+            "exception_info": {
+                "raised_exception": false,
+                "exception_message": null,
+                "exception_traceback": null
+            }
+        },
+        {
+            "success": true,
+            "expectation_config": {
+                "expectation_type": "expect_column_values_to_be_in_set",
+                "kwargs": {
+                    "column": "etatAdministratifEtablissement",
+                    "value_set": [
+                        "A",
+                        "F"
+                    ],
+                    "result_format": "BASIC"
+                },
+                "meta": {}
+            },
+            "result": {
+                "element_count": 78888,
+                "missing_count": 0,
+                "missing_percent": 0.0,
+                "unexpected_count": 0,
+                "unexpected_percent": 0.0,
+                "unexpected_percent_total": 0.0,
+                "unexpected_percent_nonmissing": 0.0,
+                "partial_unexpected_list": []
+            },
+            "meta": {},
+            "exception_info": {
+                "raised_exception": false,
+                "exception_message": null,
+                "exception_traceback": null
+            }
+        },
+        {
+            "success": true,
+            "expectation_config": {
+                "expectation_type": "expect_column_values_to_match_regex",
+                "kwargs": {
+                    "column": "activitePrincipaleEtablissement",
+                    "regex": "^\\d{2}\\.\\d{1,2}[A-Z]?$",
+                    "result_format": "BASIC"
+                },
+                "meta": {}
+            },
+            "result": {
+                "element_count": 78888,
+                "missing_count": 0,
+                "missing_percent": 0.0,
+                "unexpected_count": 0,
+                "unexpected_percent": 0.0,
+                "unexpected_percent_total": 0.0,
+                "unexpected_percent_nonmissing": 0.0,
+                "partial_unexpected_list": []
+            },
+            "meta": {},
+            "exception_info": {
+                "raised_exception": false,
+                "exception_message": null,
+                "exception_traceback": null
+            }
+        },
+        {
+            "success": true,
+            "expectation_config": {
+                "expectation_type": "expect_column_values_to_be_between",
+                "kwargs": {
+                    "column": "dateDernierTraitementEtablissement",
+                    "min_value": "2000-01-01",
+                    "max_value": "2099-12-31",
+                    "result_format": "BASIC"
+                },
+                "meta": {}
+            },
+            "result": {
+                "element_count": 78888,
+                "missing_count": 0,
+                "missing_percent": 0.0,
+                "unexpected_count": 0,
+                "unexpected_percent": 0.0,
+                "unexpected_percent_total": 0.0,
+                "unexpected_percent_nonmissing": 0.0,
+                "partial_unexpected_list": []
+            },
+            "meta": {},
+            "exception_info": {
+                "raised_exception": false,
+                "exception_message": null,
+                "exception_traceback": null
+            }
+        },
+        {
+            "success": true,
+            "expectation_config": {
+                "expectation_type": "expect_column_values_to_be_in_set",
+                "kwargs": {
+                    "column": "dates_coherentes",
+                    "value_set": [
+                        true
+                    ],
+                    "result_format": "BASIC"
+                },
+                "meta": {}
+            },
+            "result": {
+                "element_count": 78888,
+                "missing_count": 0,
+                "missing_percent": 0.0,
+                "unexpected_count": 0,
+                "unexpected_percent": 0.0,
+                "unexpected_percent_total": 0.0,
+                "unexpected_percent_nonmissing": 0.0,
+                "partial_unexpected_list": []
+            },
+            "meta": {},
+            "exception_info": {
+                "raised_exception": false,
+                "exception_message": null,
+                "exception_traceback": null
+            }
+        },
+        {
+            "success": true,
+            "expectation_config": {
+                "expectation_type": "expect_table_row_count_to_be_between",
+                "kwargs": {
+                    "min_value": 1000,
+                    "result_format": "BASIC"
+                },
+                "meta": {}
+            },
+            "result": {
+                "observed_value": 78888
+            },
+            "meta": {},
+            "exception_info": {
+                "raised_exception": false,
+                "exception_message": null,
+                "exception_traceback": null
+            }
+        }
+    ],
+    "evaluation_parameters": {},
+    "statistics": {
+        "evaluated_expectations": 10,
+        "successful_expectations": 10,
+        "unsuccessful_expectations": 0,
+        "success_percent": 100.0
+    },
+    "meta": {
+        "great_expectations_version": "0.16.15",
+        "expectation_suite_name": "default",
+        "run_id": {
+            "run_name": null,
+            "run_time": "2026-02-05T13:36:25.776267+00:00"
+        },
+        "batch_kwargs": {
+            "ge_batch_id": "a8cff0c8-0297-11f1-a5bc-aa8f1afbc51c"
+        },
+        "batch_markers": {},
+        "batch_parameters": {},
+        "validation_time": "20260205T133625.776180Z",
+        "expectation_suite_meta": {
+            "great_expectations_version": "0.16.15"
+        }
+    }
+}
