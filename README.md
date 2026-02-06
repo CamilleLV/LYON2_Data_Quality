@@ -1,4 +1,4 @@
-# 🇫🇷 Projet Data Quality & Gouvernance - Données SIRENE
+# Projet Data Quality & Gouvernance - Données SIRENE
 
 Ce projet a été réalisé dans le cadre de notre cursus académique. Il vise à mettre en œuvre une architecture **Data Engineering** complète pour l'ingestion, le nettoyage, la validation et le monitoring de la qualité des données (Data Quality) du répertoire SIRENE (INSEE).
 
@@ -62,7 +62,7 @@ Voici l'organisation détaillée des fichiers et dossiers du repository :
     └── validate_data.py                    # Validation Qualité (Great Expectations)
 
 ```
-## 🏗️ Architecture Technique
+## Architecture Technique
 
 Le projet repose sur une architecture conteneurisée via **Docker**, orchestrant les services suivants :
 
@@ -74,7 +74,7 @@ Le projet repose sur une architecture conteneurisée via **Docker**, orchestrant
 
 ---
 
-## 🚀 Installation et Configuration
+## Installation et Configuration
 
 ### Prérequis
 * Docker & Docker Compose installés.
