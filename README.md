@@ -164,6 +164,6 @@ Une fois les données traitées, les tableaux de bord Superset permettent de vis
 ---
 ## Note
 Le fichier source complet SIRENE étant trop volumineux pour Git, ce projet est configuré pour utiliser par défaut le fichier `StockEtablissement_utf8_100000.csv` (échantillon représentatif) situé dans le dossier `data/`.
-Le système d'elerte n'est pas implémenté dans cette version de Superset, il faudrait à l'avenir prendre en compte ce système dans l'installation du service.
+Le système d'alerte n'est pas implémenté dans cette version de Superset, il faudrait à l'avenir prendre en compte ce système dans l'installation du service.
 
 ---
