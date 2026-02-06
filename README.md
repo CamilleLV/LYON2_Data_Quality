@@ -5,8 +5,8 @@ Ce projet a été réalisé dans le cadre de notre cursus académique. Il vise �
 ## Auteurs
 
 Projet réalisé par :
-* **[Camille] [LAVERIE]**
-* **[Charlène] [BROUTIER]**
+* **Camille LAVERIE**
+* **Charlène BROUTIER**
 
 ---
 
@@ -142,6 +142,7 @@ docker-compose exec airflow-scheduler python -m pip install --user "great_expect
     * **Password :** *(Laisser vide)*
     * **Schema :** `sirene_dw`
     * **Port :** `5432`
+
 ---
 ## Utilisation du Pipeline
 
@@ -161,6 +162,8 @@ Une fois les données traitées, les tableaux de bord Superset permettent de vis
 * La répartition des motifs de rejet.
 
 ---
-
-## Note sur les Données
+## Note
 Le fichier source complet SIRENE étant trop volumineux pour Git, ce projet est configuré pour utiliser par défaut le fichier `StockEtablissement_utf8_100000.csv` (échantillon représentatif) situé dans le dossier `data/`.
+Le système d'elerte n'est pas implémenté dans cette version de Superset, il faudrait à l'avenir prendre en compte ce système dans l'installation du service.
+
+---
